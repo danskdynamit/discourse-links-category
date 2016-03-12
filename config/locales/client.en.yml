@@ -1,0 +1,9 @@
+en:
+  js:
+    linksCategory:
+      enable_links_category: "Enable a category to post links topic"
+      link:
+        placeholder: "Enter link"
+        error:
+          link_missing: 'Link is missing'
+          invalid: "It's not a link."

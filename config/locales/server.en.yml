@@ -1,0 +1,6 @@
+en:
+  reports:
+    accepted_solutions:
+      title: "Accepted solutions"
+      xaxis: "Day"
+      yaxis: "Total"

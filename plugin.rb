@@ -7,6 +7,8 @@ PLUGIN_NAME = "links_category".freeze
 
 enabled_site_setting :links_category_enabled
 
+register_asset 'stylesheets/links-category.scss'
+
 after_initialize do
 
   module ::DiscourseLinksCategory
@@ -19,7 +21,6 @@ after_initialize do
   DiscourseLinksCategory::Engine.routes.draw do
 
   end
-
 
   class ::Category
     after_save :reset_links_categories_cache
@@ -60,5 +61,4 @@ after_initialize do
   end
 
   add_to_serializer(:site, :links_category_ids) { CategoryCustomField.where(name: "enable_links_category", value: "true").pluck(:category_id) }
-
 end
