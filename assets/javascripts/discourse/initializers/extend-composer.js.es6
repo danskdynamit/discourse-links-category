@@ -140,7 +140,7 @@ export default {
     });
 
     Topic.reopen({
-      featuredLink: 'https://images.google.com',
+      featuredLink: 'http://images.google.com',
       featuredLinkDomain: 'images.google.com'
     });
 
