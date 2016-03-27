@@ -17,87 +17,248 @@ import { default as computed, on, observes } from 'ember-addons/ember-computed-d
 import afterTransition from 'discourse/lib/after-transition';
 import positioningWorkaround from 'discourse/lib/safari-hacks';
 import { headerHeight } from 'discourse/views/header';
+import isURL from '../../lib/validator-js/isURL';
+import PostAdapter from 'discourse/adapters/post';
+import { Result } from 'discourse/adapters/rest';
 
 function initializeWithApi(api) {
 }
 
-/* From validator.js: https://github.com/chriso/validator.js */
-function isURL(str) {
-  var urlRegex = '^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$';
-  var url = new RegExp(urlRegex, 'i');
-  return str.length < 2083 && url.test(str);
-}
+const URL_VALIDATOR_CONFIG = {
+  protocols: ['http','https','ftp'],
+  require_tld: true,
+  require_protocol: false,
+  require_valid_protocol: true,
+  allow_underscores: false,
+  host_whitelist: false,
+  host_blacklist: false,
+  allow_trailing_dot: false,
+  allow_protocol_relative_urls: false
+};
 
 export default {
   name: 'extend-composer',
   initialize() {
-    TopicController.reopen({
-      canEditFeaturedLink: function() {
-        return !this.get('model.isPrivateMessage');
-      }.property('model.isPrivateMessage')
-    });
-
     ComposerController.reopen({
-      featuredLinkPlaceholder: I18n.t("linksCategory.link.placeholder"),
+      featuredLinkPlaceholder: I18n.t("links_category.link.placeholder"),
 
-      @computed('model.featuredLink', 'lastValidatedAt', 'featuredLinkValid')
+      @computed('model.featured_link', 'lastValidatedAt', 'model.featuredLinkValid')
       featuredLinkValidation(link, lastValidatedAt, featuredLinkValid) {
-        //console.log(this.get('model.reply'), link);
-        //console.log(Ember.isEmpty(link), link && isURL(link));
-
         let reason;
         if (Ember.isEmpty(link)) {
-          reason = I18n.t('linksCategory.link.error.link_missing');
-        } else if (!isURL(link)) {
-          reason = I18n.t('linksCategory.link.error.invalid');
+          reason = I18n.t('links_category.link.error.link_missing');
+        } else if (!isURL(link, URL_VALIDATOR_CONFIG)) {
+          reason = I18n.t('links_category.link.error.invalid');
         }
 
         if (reason) {
           return Discourse.InputValidation.create({ failed: true, reason, lastShownAt: lastValidatedAt });
         }
-      },
-
-      @computed('model.featuredLink')
-      featuredLinkValid(link) {
-        return !Ember.isEmpty(link) && isURL(link);
-      },
-
-      save(force) {
-        // catch when create topics in link category
-        // user who type something may lost draft if they try to submit the links (click save button)
-        console.log(this);
-        if (this.get('model.canEditFeaturedLink')) {
-          // Clear the warning state if we're not showing the checkbox anymore
-          if (!this.get('showWarning')) {
-            this.set('model.isWarning', false);
-          }
-
-          // ensure link is valid
-          // it's only validation point for the plugin
-          if (!this.get('featuredLinkValid')) {
-            this.set('lastValidatedAt', Date.now());
-            return;
-          }
-
-          // forge reply message for validation so we don't need to crack the whole composer
-          // should apply to every Discourse site
-          // but might fail due to some site settings
-          this.set('model.reply', "@" + Discourse.User.current().username + " submitted link " +
-            this.get('model.featuredLink') + " for " + this.get('model.title'));
-          console.log(this);
-        }
-
-        // default behaviour
-        return this._super(force);
       }
+
+      //save(force) {
+      //  // catch when create topics in link category
+      //  // user who type something may lost draft if they try to submit the links (click save button)
+      //  console.log(this);
+      //  if (this.get('model.canEditFeaturedLink')) {
+      //    // Clear the warning state if we're not showing the checkbox anymore
+      //    if (!this.get('showWarning')) {
+      //      this.set('model.isWarning', false);
+      //    }
+      //
+      //    const composer = this.get('model');
+      //    const self = this;
+      //
+      //    if (composer.get('cantSubmitPost')) {
+      //      this.set('lastValidatedAt', Date.now());
+      //      return;
+      //    }
+      //
+      //    composer.set('disableDrafts', true);
+      //
+      //    var staged = false;
+      //
+      //    const promise = composer.saveFeaturedLinkTopic({ editReason: this.get("editReason")}).then(function(result) {
+      //      if (result.responseJson.action === "enqueued") {
+      //        self.send('postWasEnqueued', result.responseJson);
+      //        self.destroyDraft();
+      //        self.close();
+      //        self.appEvents.trigger('post-stream:refresh');
+      //        return result;
+      //      }
+      //
+      //      // If user "created a new topic/post" or "replied as a new topic" successfully, remove the draft.
+      //      if (result.responseJson.action === "create_post" || self.get('replyAsNewTopicDraft')) {
+      //        self.destroyDraft();
+      //      }
+      //      if (self.get('model.action') === 'edit') {
+      //        self.appEvents.trigger('post-stream:refresh', { id: parseInt(result.responseJson.id) });
+      //      } else {
+      //        self.appEvents.trigger('post-stream:refresh');
+      //      }
+      //
+      //      if (result.responseJson.action === "create_post") {
+      //        self.appEvents.trigger('post:highlight', result.payload.post_number);
+      //      }
+      //      self.close();
+      //
+      //      const currentUser = Discourse.User.current();
+      //      if (composer.get('creatingTopic')) {
+      //        currentUser.set('topic_count', currentUser.get('topic_count') + 1);
+      //      } else {
+      //        currentUser.set('reply_count', currentUser.get('reply_count') + 1);
+      //      }
+      //
+      //      const disableJumpReply = Discourse.User.currentProp('disable_jump_reply');
+      //      if (!composer.get('replyingToTopic') || !disableJumpReply) {
+      //        const post = result.target;
+      //        if (post && !staged) {
+      //          DiscourseURL.routeTo(post.get('url'));
+      //        }
+      //      }
+      //
+      //    }).catch(function(error) {
+      //      composer.set('disableDrafts', false);
+      //      self.appEvents.one('composer:opened', () => bootbox.alert(error));
+      //    });
+      //
+      //    if (this.get('controllers.application.currentRouteName').split('.')[0] === 'topic' &&
+      //      composer.get('topic.id') === this.get('controllers.topic.model.id')) {
+      //      staged = composer.get('stagedPost');
+      //    }
+      //
+      //    this.appEvents.trigger('post-stream:posted', staged);
+      //
+      //    this.messageBus.pause();
+      //    promise.finally(() => this.messageBus.resume());
+      //
+      //    return promise;
+      //  } else {
+      //    // default behaviour
+      //    return this._super(force);
+      //  }
+      //}
     });
 
+    Composer.serializeOnCreate('featured_link');
+    Composer.serializeToTopic('featured_link', 'topic.featured_link');
     Composer.reopen({
-      canEditFeaturedLink: function() {
-        console.log(this);
-        return this.get('canEditTitle') &&
-          this.site.get('links_category_ids').contains(this.get('categoryId'));
-      }.property('canEditTitle', 'categoryId')
+      @computed('canEditTitle', 'categoryId')
+      canEditFeaturedLink(canEditTitle, categoryId) {
+        return canEditTitle &&
+          this.site.get('links_category_ids').contains(categoryId);
+      },
+
+      @computed('featured_link')
+      featuredLinkValid(link) {
+        return !Ember.isEmpty(link) && isURL(link, URL_VALIDATOR_CONFIG);
+      },
+
+      // whether to disable the post button
+      cantSubmitPost: function () {
+        // catch when create topics in link category
+        if (this.get('canEditFeaturedLink')) {
+          // can't submit while loading
+          if (this.get('loading')) return true;
+
+          // title is required when
+          //  - creating a new topic/private message
+          //  - editing the 1st post
+          if (this.get('canEditTitle') && !this.get('titleLengthValid')) return true;
+
+          return !this.get('featuredLinkValid');
+        } else {
+          // default behaviour
+          return this._super();
+        }
+      }.property('loading', 'canEditTitle', 'titleLength', 'targetUsernames', 'replyLength', 'categoryId', 'missingReplyCharacters', 'featured_link'),
+
+    //  saveFeaturedLinkTopic(opts) {
+    //    const post = this.get('post'),
+    //      topic = this.get('topic'),
+    //      user = this.user,
+    //      postStream = this.get('topic.postStream');
+    //
+    //    let addedToStream = false;
+    //
+    //    const postTypes = this.site.get('post_types');
+    //    const postType = this.get('whisper') ? postTypes.whisper : postTypes.regular;
+    //
+    //    // Build the post object
+    //    const createdPost = this.store.createRecord('post', {
+    //      imageSizes: opts.imageSizes,
+    //      cooked: this.getCookedHtml(),
+    //      reply_count: 0,
+    //      name: user.get('name'),
+    //      display_username: user.get('name'),
+    //      username: user.get('username'),
+    //      user_id: user.get('id'),
+    //      user_title: user.get('title'),
+    //      avatar_template: user.get('avatar_template'),
+    //      user_custom_fields: user.get('custom_fields'),
+    //      post_type: postType,
+    //      actions_summary: [],
+    //      moderator: user.get('moderator'),
+    //      admin: user.get('admin'),
+    //      yours: true,
+    //      read: true,
+    //      wiki: false,
+    //      typingTime: this.get('typingTime'),
+    //      composerTime: this.get('composerTime')
+    //    });
+    //
+    //    this.serialize(_create_serializer, createdPost);
+    //
+    //    if (post) {
+    //      createdPost.setProperties({
+    //        reply_to_post_number: post.get('post_number'),
+    //        reply_to_user: {
+    //          username: post.get('username'),
+    //          avatar_template: post.get('avatar_template')
+    //        }
+    //      });
+    //    }
+    //
+    //    let state = null;
+    //
+    //    // If we're in a topic, we can append the post instantly.
+    //    if (postStream) {
+    //      // If it's in reply to another post, increase the reply count
+    //      if (post) {
+    //        post.set('reply_count', (post.get('reply_count') || 0) + 1);
+    //        post.set('replies', []);
+    //      }
+    //
+    //      // We do not stage posts in mobile view, we do not have the "cooked"
+    //      // Furthermore calculating cooked is very complicated, especially since
+    //      // we would need to handle oneboxes and other bits that are not even in the
+    //      // engine, staging will just cause a blank post to render
+    //      if (!_.isEmpty(createdPost.get('cooked'))) {
+    //        state = postStream.stagePost(createdPost, user);
+    //        if (state === "alreadyStaging") {
+    //          return;
+    //        }
+    //      }
+    //    }
+    //
+    //  }
+    });
+
+    PostAdapter.reopen({
+      createRecord(store, type, args) {
+        // may validate
+        if (args.featured_link) {
+          let path = this.basePath(store, type) + 'links_category/links';
+
+          const typeField = Ember.String.underscore(type);
+          args.nested_post = true;
+          return Discourse.ajax(path, { method: 'POST', data: args }).then(function (json) {
+            return new Result(json[typeField], json);
+          });
+        } else {
+          this._super(store, type, args);
+        }
+      }
     });
 
     ComposerEditor.reopen({
@@ -107,7 +268,6 @@ export default {
 
       @on('didInsertElement')
       _resizingForFeaturedLink() {
-        console.log(this);
         const $replyControl = $('#reply-control');
 
         if (this.get('editLinksCategory')) {
@@ -140,8 +300,21 @@ export default {
     });
 
     Topic.reopen({
-      featuredLink: 'http://images.google.com',
-      featuredLinkDomain: 'images.google.com'
+      @computed('featured_link')
+      featuredLinkDomain(url) {
+        // remove protocol
+        var domain = url;
+        if (url.indexOf("://") > -1) {
+          domain = url.split('/')[2];
+        } else {
+          domain = url.split('/')[0];
+        }
+
+        // find & remove port number
+        domain = domain.split(':')[0];
+
+        return domain;
+      }
     });
 
     withPluginApi('0.1', initializeWithApi);
