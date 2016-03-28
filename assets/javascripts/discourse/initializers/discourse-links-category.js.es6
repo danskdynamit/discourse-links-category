@@ -23,7 +23,7 @@ import { Result } from 'discourse/adapters/rest';
 
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
-    if (!m) { return }
+    if (!m || !$elem) { return }
 
     const model = m.getModel();
     if (model.get('firstPost') &&

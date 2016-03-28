@@ -34,8 +34,6 @@ after_initialize do
     before_action :ensure_logged_in, only: [:create]
 
     def create
-      p params
-
       # make sure url is valid
       # copy if raw is blank or even customized
 
@@ -44,14 +42,22 @@ after_initialize do
       category = @params[:category] || ""
       guardian.ensure_featured_link_category!(category.to_i)
 
-      # rewrite as featured link
-      @params[:raw] = @params[:featured_link] #  if @params[:raw].blank?
-      @params[:skip_validations] = true
-      @params[:post_type] ||= Post.types[:regular]
-      @params[:first_post_checks] = true
 
-      manager = NewPostManager.new(current_user, @params)
-      result = manager.perform
+      # fail early to skip post manager if url is invalid
+      uri = URI.parse(@params[:featured_link])
+      if !uri.kind_of?(URI::HTTP) && !uri.kind_of?(URI::HTTPS)
+        result = NewPostResult.new(:create_post)
+        result.errors[:base] << 'Link is invalid.'
+      else
+        # rewrite as featured link
+        @params[:raw] = @params[:featured_link] #  if @params[:raw].blank?
+        @params[:skip_validations] = true
+        @params[:post_type] ||= Post.types[:regular]
+        @params[:first_post_checks] = true
+
+        manager = NewPostManager.new(current_user, @params)
+        result = manager.perform
+      end
 
       if result.success?
         result.post.topic.custom_fields = { featured_link: @params[:featured_link] }
