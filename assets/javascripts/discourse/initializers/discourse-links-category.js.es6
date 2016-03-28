@@ -21,6 +21,8 @@ import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
 import CategoryChooser from 'discourse/components/category-chooser';
+import ClickTrack from 'discourse/lib/click-track';
+import ApplicationView from 'discourse/views/application';
 
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
@@ -327,6 +329,29 @@ export default {
         }
 
         return domain;
+      }
+    });
+
+    ApplicationView.reopen({
+      @on('didInsertElement')
+      _inserted: function() {
+        this.$().on('mouseup.link-category', 'a.featured-link', (e) => {
+          // bypass if we are selecting stuff
+          const selection = window.getSelection && window.getSelection();
+          if (selection.type === "Range" || selection.rangeCount > 0) {
+            if (Discourse.Utilities.selectedText() !== "") {
+              return true;
+            }
+          }
+          return ClickTrack.trackClick(e);
+        });
+
+      },
+
+      @on('willDestroyElement')
+      _destroyed() {
+        // Unbind link tracking
+        this.$().off('mouseup.link-category', 'a.featured-link');
       }
     });
 
