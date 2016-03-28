@@ -1,6 +1,6 @@
 en:
   reports:
-    accepted_solutions:
-      title: "Accepted solutions"
+    featured_link:
+      title: "Featured link topics"
       xaxis: "Day"
       yaxis: "Total"

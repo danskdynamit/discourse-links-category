@@ -142,6 +142,33 @@ after_initialize do
     prepend ::CategoryBadgeExtension
   end
 
+
+  TopicView.add_post_custom_fields_whitelister do |user|
+    ["is_accepted_answer"]
+  end
+
+  if Report.respond_to?(:add_report)
+    AdminDashboardData::GLOBAL_REPORTS << FEATURED_LINK_FIELD_NAME
+
+    Report.add_report(FEATURED_LINK_FIELD_NAME) do |report|
+      report.data = []
+      link_topics = TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME)
+      link_topics = link_topics.joins(:topic).where("topics.category_id = ?", report.category_id) if report.category_id
+      link_topics.where("topic_custom_fields.created_at >= ?", report.start_date)
+                 .where("topic_custom_fields.created_at <= ?", report.end_date)
+                 .group("DATE(topic_custom_fields.created_at)")
+                 .order("DATE(topic_custom_fields.created_at)")
+                 .count
+                 .each do |date, count|
+        report.data << { x: date, y: count }
+      end
+      report.total = link_topics.count
+      report.prev30Days = link_topics.where("topic_custom_fields.created_at >= ?", report.start_date - 30.days)
+                                     .where("topic_custom_fields.created_at <= ?", report.start_date)
+                                     .count
+    end
+  end
+
   add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 
