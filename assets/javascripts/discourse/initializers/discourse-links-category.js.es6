@@ -265,7 +265,7 @@ export default {
             return new Result(json[typeField], json);
           });
         } else {
-          this._super(store, type, args);
+          return this._super(store, type, args);
         }
       }
     });
