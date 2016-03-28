@@ -1,4 +1,7 @@
 en:
+  links_category:
+    topic_moved_out_disallowed: "You can't move a featured link topic to another category."
+    topic_moved_in_disallowed: "You can't move a normal topic into a link category. Try to create instead."
   reports:
     featured_link:
       title: "Featured link topics"

@@ -169,6 +169,30 @@ after_initialize do
     end
   end
 
+  # override category_id block
+  PostRevisor.track_topic_field(:category_id) do |tc, category_id|
+    unless tc.guardian.is_staff?
+      old_category_id = tc.topic.category.id
+
+      # move topic out of links category
+      if tc.guardian.featured_link_category?(old_category_id)
+        tc.topic.errors[:base] << I18n.t("links_category.topic_moved_out_disallowed")
+        tc.check_result(false)
+        next
+      end
+
+      # move topic to links category
+      if tc.guardian.featured_link_category?(category_id)
+        tc.topic.errors[:base] << I18n.t("links_category.topic_moved_in_disallowed")
+        tc.check_result(false)
+        next
+      end
+    end
+
+    tc.record_change('category_id', tc.topic.category_id, category_id)
+    tc.check_result(tc.topic.change_category_to_id(category_id))
+  end
+
   add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 

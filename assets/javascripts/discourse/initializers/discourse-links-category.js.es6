@@ -20,6 +20,7 @@ import { headerHeight } from 'discourse/views/header';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
+import CategoryChooser from 'discourse/components/category-chooser';
 
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
