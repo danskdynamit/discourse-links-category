@@ -133,6 +133,17 @@ after_initialize do
     end
   end
 
+  module ::CategoryBadgeExtension
+    def self.html_for(category, opts = nil)
+      html = super(category, opts)
+
+    end
+  end
+
+  CategoryBadge.class_eval do
+    prepend ::CategoryBadgeExtension
+  end
+
   add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 

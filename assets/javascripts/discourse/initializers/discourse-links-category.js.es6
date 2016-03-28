@@ -22,10 +22,19 @@ import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
 
 function initializeWithApi(api) {
+  api.decorateCooked(($elem, m) => {
+    if (!m) { return }
+
+    const model = m.getModel();
+    if (model.get('firstPost') &&
+      Discourse.Site.current().get('links_category_ids').contains(model.get('topic.category.id'))) {
+      $elem.hide();
+    }
+  });
 }
 
 const URL_VALIDATOR_CONFIG = {
-  protocols: ['http','https','ftp'],
+  protocols: ['http','https'],
   require_tld: true,
   require_protocol: false,
   require_valid_protocol: true,
@@ -37,7 +46,7 @@ const URL_VALIDATOR_CONFIG = {
 };
 
 export default {
-  name: 'extend-composer',
+  name: 'discourse-links-category',
   initialize() {
     ComposerController.reopen({
       featuredLinkPlaceholder: I18n.t("links_category.link.placeholder"),
