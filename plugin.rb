@@ -3,8 +3,9 @@
 # version: 0.3
 # authors: Erick Guan (fantasticfears@gmail.com)
 
-PLUGIN_NAME = "discourse_links_category".freeze
-SETTING_NAME = "links_category".freeze
+PLUGIN_NAME = 'discourse_links_category'.freeze
+SETTING_NAME = 'links_category'.freeze
+FEATURED_LINK_FIELD_NAME = 'featured_link'.freeze
 
 enabled_site_setting :links_category_enabled
 
@@ -132,6 +133,10 @@ after_initialize do
     end
   end
 
+  add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
+  TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
+
   add_to_serializer(:site, :links_category_ids) { CategoryCustomField.where(name: SETTING_NAME, value: "true").pluck(:category_id) }
-  add_to_serializer(:topic_view, :featured_link) { TopicCustomField.where(name: "featured_link", topic_id: object.topic.id).pluck(:value).first }
+  add_to_serializer(:topic_view, :featured_link) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic.id).pluck(:value).first }
+  add_to_serializer(:topic_list_item, :featured_link) { object.featured_link }
 end

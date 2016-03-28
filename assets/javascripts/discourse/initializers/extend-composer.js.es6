@@ -302,16 +302,19 @@ export default {
     Topic.reopen({
       @computed('featured_link')
       featuredLinkDomain(url) {
-        // remove protocol
         var domain = url;
-        if (url.indexOf("://") > -1) {
-          domain = url.split('/')[2];
-        } else {
-          domain = url.split('/')[0];
-        }
 
-        // find & remove port number
-        domain = domain.split(':')[0];
+        if (url) {
+          // remove protocol
+          if (url.indexOf("://") > -1) {
+            domain = url.split('/')[2];
+          } else {
+            domain = url.split('/')[0];
+          }
+
+          // find & remove port number
+          domain = domain.split(':')[0];
+        }
 
         return domain;
       }
