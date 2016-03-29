@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 0.3
+# version: 0.4
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -50,6 +50,8 @@ after_initialize do
         result.errors[:base] << 'Link is invalid.'
       else
         # rewrite as featured link unless client can play well with user stream etc.
+        # we need a link appeared in the post since TopicLink extracts the link from the
+        # first post. otherwise, we lose the tracking ability
         @params[:raw] = @params[:featured_link] #  if @params[:raw].blank?
         @params[:skip_validations] = true
         @params[:post_type] ||= Post.types[:regular]
@@ -197,8 +199,8 @@ after_initialize do
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 
   add_to_serializer(:site, :links_category_ids) { CategoryCustomField.where(name: SETTING_NAME, value: "true").pluck(:category_id) }
-  add_to_serializer(:topic_view, :include_featured_link?, false) { scope.featured_link_category?(object.topic.category.id) }
+  add_to_serializer(:topic_view, :include_featured_link?, false) { object.topic.category && scope.featured_link_category?(object.topic.category.id) }
   add_to_serializer(:topic_view, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic.id).pluck(:value).first }
-  add_to_serializer(:topic_list_item, :include_featured_link?, false) { scope.featured_link_category?(object.category.id) }
+  add_to_serializer(:topic_list_item, :include_featured_link?, false) { object.category && scope.featured_link_category?(object.category.id) }
   add_to_serializer(:topic_list_item, :featured_link, false) { object.featured_link }
 end
