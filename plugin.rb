@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 0.4
+# version: 0.5
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -195,6 +195,17 @@ after_initialize do
     tc.check_result(tc.topic.change_category_to_id(category_id))
   end
 
+  ApplicationHelper.class_eval do
+    def featured_link_domain(url)
+      uri = URI.parse(url)
+      uri = URI.parse("http://#{url}") if uri.scheme.nil?
+      host = uri.host.downcase
+      # host.start_with?('www.') ? host[4..-1] : host
+    end
+  end
+
+  UserNotifications.prepend_view_path("#{File.dirname(__FILE__)}/app/views")
+
   add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 
@@ -203,4 +214,6 @@ after_initialize do
   add_to_serializer(:topic_view, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic.id).pluck(:value).first }
   add_to_serializer(:topic_list_item, :include_featured_link?, false) { object.category && scope.featured_link_category?(object.category.id) }
   add_to_serializer(:topic_list_item, :featured_link, false) { object.featured_link }
+  add_to_serializer(:user_action, :include_featured_link?, false) { object.category_id && scope.featured_link_category?(object.category_id) }
+  add_to_serializer(:user_action, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic_id).pluck(:value).first }
 end

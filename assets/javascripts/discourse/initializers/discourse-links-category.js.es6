@@ -23,6 +23,7 @@ import { Result } from 'discourse/adapters/rest';
 import CategoryChooser from 'discourse/components/category-chooser';
 import ClickTrack from 'discourse/lib/click-track';
 import ApplicationView from 'discourse/views/application';
+import StreamItem from 'discourse/components/stream-item';
 
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
@@ -313,6 +314,28 @@ export default {
 
     Topic.reopen({
       @computed('featured_link')
+      featuredLinkDomain(url) {
+        var domain = url;
+
+        if (url) {
+          // remove protocol
+          if (url.indexOf("://") > -1) {
+            domain = url.split('/')[2];
+          } else {
+            domain = url.split('/')[0];
+          }
+
+          // find & remove port number
+          domain = domain.split(':')[0];
+        }
+
+        return domain;
+      }
+    });
+
+    // TODO: same with topics, extract it
+    StreamItem.reopen({
+      @computed('item.featured_link')
       featuredLinkDomain(url) {
         var domain = url;
 
