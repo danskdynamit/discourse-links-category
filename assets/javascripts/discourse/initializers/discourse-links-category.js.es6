@@ -366,7 +366,7 @@ export default {
               return true;
             }
           }
-          return ClickTrack.trackClick(e);
+          return e;// ClickTrack.trackClick(e);
         });
 
       },
