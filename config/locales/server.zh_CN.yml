@@ -1,0 +1,10 @@
+zh_CN:
+  links_category:
+    invalid_link: '链接非法。'
+    topic_moved_out_disallowed: "你不能把链接主题移到另一个分类。"
+    topic_moved_in_disallowed: "你不能把普通主题移进链接分类。试试在链接分类创建新主题。"
+  reports:
+    featured_link:
+      title: "链接主题"
+      xaxis: "日"
+      yaxis: "总数"

@@ -5,5 +5,5 @@ en:
       link:
         placeholder: "Enter link"
         error:
-          link_missing: 'You need '
+          link_missing: 'You need to enter a link'
           invalid: "It's not a link"

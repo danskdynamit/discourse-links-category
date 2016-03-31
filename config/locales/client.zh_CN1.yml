@@ -1,6 +1,0 @@
-zh_CN:
-  js:
-    linksCategory:
-      enable_links_category: "允许设置分类为只能发布链接"
-      link:
-        placeholder: "输入链接"

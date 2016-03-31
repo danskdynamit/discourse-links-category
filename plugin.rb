@@ -47,7 +47,7 @@ after_initialize do
       uri = URI.parse(@params[:featured_link])
       if !uri.kind_of?(URI::HTTP) && !uri.kind_of?(URI::HTTPS)
         result = NewPostResult.new(:create_post)
-        result.errors[:base] << 'Link is invalid.'
+        result.errors[:base] << I18n.t('links_category.invalid_link')
       else
         # rewrite as featured link unless client can play well with user stream etc.
         # we need a link appeared in the post since TopicLink extracts the link from the

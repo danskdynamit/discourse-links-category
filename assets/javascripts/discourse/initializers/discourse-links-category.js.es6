@@ -29,9 +29,10 @@ function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
     if (!m || !$elem) { return }
 
-    const model = m.getModel();
-    if (model.get('firstPost') &&
-      Discourse.Site.current().get('links_category_ids').contains(model.get('topic.category.id'))) {
+    const model = m.getModel(),
+      categoryIds = Discourse.Site.current().get('links_category_ids');
+    if (model.get('firstPost') && categoryIds &&
+      categoryIds.contains(model.get('topic.category.id'))) {
       $elem.hide();
     }
   });
@@ -158,8 +159,9 @@ export default {
     Composer.reopen({
       @computed('canEditTitle', 'categoryId')
       canEditFeaturedLink(canEditTitle, categoryId) {
-        return canEditTitle &&
-          this.site.get('links_category_ids').contains(categoryId);
+        const categoryIds = this.site.get('links_category_ids');
+        return canEditTitle && categoryIds &&
+          categoryIds.contains(categoryId);
       },
 
       @computed('featured_link')

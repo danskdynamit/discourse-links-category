@@ -1,0 +1,9 @@
+zh_CN:
+  js:
+    links_category:
+      enable: "允许设置分类为只能发布链接"
+      link:
+        placeholder: "输入链接"
+        error:
+          link_missing: '你需要输入一个链接'
+          invalid: "这不是链接"
