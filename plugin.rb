@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 0.5
+# version: 0.6
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -10,7 +10,6 @@ FEATURED_LINK_FIELD_NAME = 'featured_link'.freeze
 enabled_site_setting :links_category_enabled
 
 register_asset 'stylesheets/links-category.scss'
-#register_asset 'javascripts/discourse/lib/validator.js.es6'
 
 after_initialize do
 
@@ -34,9 +33,6 @@ after_initialize do
     before_action :ensure_logged_in, only: [:create]
 
     def create
-      # make sure url is valid
-      # copy if raw is blank or even customized
-
       @params = create_params
 
       category = @params[:category] || ""
@@ -133,22 +129,6 @@ after_initialize do
     end
   end
 
-  module ::CategoryBadgeExtension
-    def self.html_for(category, opts = nil)
-      html = super(category, opts)
-
-    end
-  end
-
-  CategoryBadge.class_eval do
-    prepend ::CategoryBadgeExtension
-  end
-
-
-  TopicView.add_post_custom_fields_whitelister do |user|
-    ["is_accepted_answer"]
-  end
-
   if Report.respond_to?(:add_report)
     AdminDashboardData::GLOBAL_REPORTS << FEATURED_LINK_FIELD_NAME
 
@@ -200,7 +180,7 @@ after_initialize do
       uri = URI.parse(url)
       uri = URI.parse("http://#{url}") if uri.scheme.nil?
       host = uri.host.downcase
-      # host.start_with?('www.') ? host[4..-1] : host
+      host.start_with?('www.') ? host[4..-1] : host
     end
   end
 
