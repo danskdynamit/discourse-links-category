@@ -22,7 +22,7 @@
         <div class='featured-topic'>
           <a href='<%= Discourse.base_url + t.relative_url %>' style='color: #<%= @anchor_color %>'><%= raw format_topic_title(t.title) %></a>
           <%- if t.featured_link %>
-            <a href='<%= t.featured_link %>' style='color: #<%= @anchor_color %>'><%= raw featured_link_domain(t.featured_link) %></a>
+            <a class='featured-link' href='<%= t.featured_link %>'><%= raw featured_link_domain(t.featured_link) %></a>
           <%- end %>
           <br/>
           <%= category_badge(t.category, inline_style: true, absolute_url: true) %>
@@ -50,7 +50,7 @@
             <span class='post-count'><%= t.posts_count %></span>
             <%= category_badge(t.category, inline_style: true, absolute_url: true) %>
             <%- if t.featured_link %>
-                <a href='<%= t.featured_link %>' style='color: #<%= @anchor_color %>'><%= raw featured_link_domain(t.featured_link) %></a>
+                <a class='featured-link' href='<%= t.featured_link %>'><%= raw featured_link_domain(t.featured_link) %></a>
             <%- end %>
           </li>
         </ul>

@@ -8,3 +8,6 @@ en:
       title: "Featured link topics"
       xaxis: "Day"
       yaxis: "Total"
+  site_settings:
+    links_category_enabled: "Enable featured link topics"
+    links_category_digest_email_anchor_style: "CSS for a.featured-link in digest email"

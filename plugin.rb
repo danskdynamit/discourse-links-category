@@ -184,8 +184,6 @@ after_initialize do
     end
   end
 
-  UserNotifications.prepend_view_path("#{File.dirname(__FILE__)}/app/views")
-
   add_to_class(:topic, :featured_link) { custom_fields[FEATURED_LINK_FIELD_NAME] }
   TopicList.preloaded_custom_fields << FEATURED_LINK_FIELD_NAME if TopicList.respond_to? :preloaded_custom_fields
 
@@ -196,4 +194,12 @@ after_initialize do
   add_to_serializer(:topic_list_item, :featured_link, false) { object.featured_link }
   add_to_serializer(:user_action, :include_featured_link?, false) { object.category_id && scope.featured_link_category?(object.category_id) }
   add_to_serializer(:user_action, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic_id).pluck(:value).first }
+
+  UserNotifications.prepend_view_path("#{File.dirname(__FILE__)}/app/views")
+  Email::Styles.register_plugin_style do |fragment|
+    # remove all elided content
+    fragment.css("a.featured-link").each do |e|
+      e['style'] = SiteSetting.links_category_digest_email_anchor_style
+    end
+  end
 end

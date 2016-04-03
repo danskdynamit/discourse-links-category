@@ -8,3 +8,6 @@ zh_CN:
       title: "链接主题"
       xaxis: "日"
       yaxis: "总数"
+  site_settings:
+    links_category_enabled: "启用链接主题功能"
+    links_category_digest_email_anchor_style: "a.featured-link 的 CSS,用于摘要邮件"
