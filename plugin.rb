@@ -197,7 +197,6 @@ after_initialize do
 
   UserNotifications.prepend_view_path("#{File.dirname(__FILE__)}/app/views")
   Email::Styles.register_plugin_style do |fragment|
-    # remove all elided content
     fragment.css("a.featured-link").each do |e|
       e['style'] = SiteSetting.links_category_digest_email_anchor_style
     end
