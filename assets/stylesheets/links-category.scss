@@ -1,5 +1,10 @@
-#reply-control .wmd-controls.edit-links-category {
-  display: none;
+#reply-control.edit-link-category {
+  &.open {
+    height: 210px;
+  }
+  .wmd-controls {
+    display: none;
+  }
 }
 
 #reply-control input.featured-link-field {

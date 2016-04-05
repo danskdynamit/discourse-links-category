@@ -5,8 +5,6 @@ import Composer from 'discourse/models/composer';
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import ComposerView from 'discourse/views/composer';
-import ComposerEditor from 'discourse/components/composer-editor';
-import afterTransition from 'discourse/lib/after-transition';
 import { headerHeight } from 'discourse/views/header';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
@@ -14,6 +12,18 @@ import { Result } from 'discourse/adapters/rest';
 import ClickTrack from 'discourse/lib/click-track';
 import ApplicationView from 'discourse/views/application';
 import StreamItem from 'discourse/components/stream-item';
+
+const URL_VALIDATOR_CONFIG = {
+  protocols: ['http','https'],
+  require_tld: true,
+  require_protocol: false,
+  require_valid_protocol: true,
+  allow_underscores: false,
+  host_whitelist: false,
+  host_blacklist: false,
+  allow_trailing_dot: false,
+  allow_protocol_relative_urls: false
+};
 
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
@@ -46,19 +56,6 @@ function extractDomainName(url) {
 
   return url;
 }
-
-
-const URL_VALIDATOR_CONFIG = {
-  protocols: ['http','https'],
-  require_tld: true,
-  require_protocol: false,
-  require_valid_protocol: true,
-  allow_underscores: false,
-  host_whitelist: false,
-  host_blacklist: false,
-  allow_trailing_dot: false,
-  allow_protocol_relative_urls: false
-};
 
 export default {
   name: 'discourse-links-category',
@@ -133,45 +130,6 @@ export default {
       }
     });
 
-    // TODO: auto resize?
-    // ComposerEditor.reopen({
-    //   classNameBindings: ['showToolbar:toolbar-visible', ':wmd-controls', 'showPreview', 'showPreview::hide-preview', 'editLinksCategory:edit-links-category'],
-    //
-    //   editLinksCategory: Em.computed.equal('composer.canEditFeaturedLink', true),
-    //
-    //   @on('didInsertElement')
-    //   _resizingForFeaturedLink() {
-    //     const $replyControl = $('#reply-control');
-    //
-    //     if (this.get('editLinksCategory')) {
-    //       $replyControl.DivResizer({
-    //         maxHeight: winHeight => winHeight - headerHeight(),
-    //         onDrag: sizePx => this.movePanels(sizePx)
-    //       });
-    //
-    //       afterTransition($replyControl);
-    //     }
-    //   }
-    // });
-    //
-    // ComposerView.reopen({
-    //   @observes('composer.canEditFeaturedLink')
-    //   resizeWhenEditFeaturedLink() {
-    //     if (this.get('composer.canEditFeaturedLink')) {
-    //       Ember.run.scheduleOnce('afterRender', () => {
-    //         var h = $('#reply-control').height() || 0;
-    //         const textField = $('.edit-links-category');
-    //         const textFieldHeight = textField ? textField.height() : 0;
-    //
-    //         if (h > 0) h -= textFieldHeight;
-    //         this.movePanels(h + "px");
-    //       });
-    //     } else {
-    //       this.resize();
-    //     }
-    //   }
-    // });
-
     Topic.reopen({
       @computed('featured_link')
       featuredLinkDomain(url) {
@@ -207,6 +165,16 @@ export default {
         // Unbind link tracking
         this.$().off('mouseup.link-category', 'a.featured-link');
       }
+    });
+
+    ComposerView.reopen({
+      classNameBindings: ['composer.creatingPrivateMessage:private-message',
+                          'composeState',
+                          'composer.loading',
+                          'composer.canEditTitle:edit-title',
+                          'composer.createdPost:created-post',
+                          'composer.creatingTopic:topic',
+                          'composer.canEditFeaturedLink:edit-link-category']
     });
 
     withPluginApi('0.1', initializeWithApi);
