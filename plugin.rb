@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 0.6
+# version: 0.7
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -39,8 +39,12 @@ after_initialize do
       guardian.ensure_featured_link_category!(category.to_i)
 
 
-      # fail early to skip post manager if url is invalid
       uri = URI.parse(@params[:featured_link])
+      if uri.scheme.nil?
+        uri = URI.parse("http://#{@params[:featured_link]}")
+      end
+
+      # fail early to skip post manager if url is invalid
       if !uri.kind_of?(URI::HTTP) && !uri.kind_of?(URI::HTTPS)
         result = NewPostResult.new(:create_post)
         result.errors[:base] << I18n.t('links_category.invalid_link')
@@ -58,7 +62,7 @@ after_initialize do
       end
 
       if result.success?
-        result.post.topic.custom_fields = { featured_link: @params[:featured_link] }
+        result.post.topic.custom_fields = { featured_link: uri.to_s }
         result.post.topic.save!
       end
       json = serialize_data(result, NewPostResultSerializer, root: false)
