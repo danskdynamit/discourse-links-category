@@ -9,9 +9,7 @@ import { headerHeight } from 'discourse/views/header';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
-import ClickTrack from 'discourse/lib/click-track';
-import ApplicationView from 'discourse/views/application';
-import StreamItem from 'discourse/components/stream-item';
+import TopicListItemView from 'discourse/views/topic-list-item';
 
 const URL_VALIDATOR_CONFIG = {
   protocols: ['http','https'],
@@ -36,25 +34,6 @@ function initializeWithApi(api) {
       $elem.hide();
     }
   });
-}
-
-function extractDomainName(url) {
-  if (!url) return;
-
-  if (url.indexOf("://") > -1) {
-    url = url.split('/')[2];
-  } else {
-    url = url.split('/')[0];
-  }
-
-  url = url.split(':')[0];
-
-  // www is too frequent
-  if (url && url.startsWith('www.')) {
-    url = url.replace('www\.', '');
-  }
-
-  return url;
 }
 
 export default {
@@ -131,39 +110,46 @@ export default {
     });
 
     Topic.reopen({
+      // for raw rendering
       @computed('featured_link')
       featuredLinkDomain(url) {
-        return extractDomainName(url);
+        if (!url) return '';
+
+        if (url.indexOf("://") > -1) {
+          url = url.split('/')[2];
+        } else {
+          url = url.split('/')[0];
+        }
+
+        url = url.split(':')[0];
+
+        // www is too frequent, truncate it
+        if (url && url.startsWith('www.')) {
+          url = url.replace('www\.', '');
+        }
+
+        return url;
       }
     });
 
-    StreamItem.reopen({
-      @computed('item.featured_link')
-      featuredLinkDomain(url) {
-        return extractDomainName(url);
-      }
-    });
+    TopicListItemView.reopen({
+      // patch because of raw template
+      click(e) {
+        const $link = $(e.currentTarget);
+        if ($link.hasClass('featured-link')) {
+          if (Discourse.Utilities.selectedText() !== "") { return false; }
 
-    ApplicationView.reopen({
-      @on('didInsertElement')
-      _inserted: function() {
-        this.$().on('mouseup.link-category', 'a.featured-link', (e) => {
-          // bypass if we are selecting stuff
-          const selection = window.getSelection && window.getSelection();
-          if (selection.type === "Range" || selection.rangeCount > 0) {
-            if (Discourse.Utilities.selectedText() !== "") {
-              return true;
-            }
+          e.preventDefault();
+
+          if (this.siteSettings.links_category_open_in_external_tab) {
+            var win = window.open(this.get('url'), '_blank');
+            win.focus();
+          } else {
+            window.location = this.get('url');
           }
-          return e;// ClickTrack.trackClick(e);
-        });
-
-      },
-
-      @on('willDestroyElement')
-      _destroyed() {
-        // Unbind link tracking
-        this.$().off('mouseup.link-category', 'a.featured-link');
+        } else {
+          this._super(e);
+        }
       }
     });
 
@@ -177,6 +163,6 @@ export default {
                           'composer.canEditFeaturedLink:edit-link-category']
     });
 
-    withPluginApi('0.1', initializeWithApi);
+    withPluginApi('0.3', initializeWithApi);
   }
 };
