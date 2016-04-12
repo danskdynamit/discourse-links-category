@@ -9,7 +9,7 @@ import { headerHeight } from 'discourse/views/header';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
-import TopicListItemView from 'discourse/views/topic-list-item';
+import TopicDiscoveryView from 'discourse/views/discovery-topics';
 
 const URL_VALIDATOR_CONFIG = {
   protocols: ['http','https'],
@@ -132,24 +132,30 @@ export default {
       }
     });
 
-    TopicListItemView.reopen({
+    TopicDiscoveryView.reopen({
       // patch because of raw template
-      click(e) {
-        const $link = $(e.currentTarget);
-        if ($link.hasClass('featured-link')) {
-          if (Discourse.Utilities.selectedText() !== "") { return false; }
-
+      @on('didInsertElement')
+      _watchFeaturedLinkClicked() {
+        this.$().on('click.link-category', 'a.featured-link', (e) => {
           e.preventDefault();
 
+          const target = $(e.target),
+            url = target.attr('href');
+
           if (this.siteSettings.links_category_open_in_external_tab) {
-            var win = window.open(this.get('url'), '_blank');
+            var win = window.open(url, '_blank');
             win.focus();
           } else {
-            window.location = this.get('url');
+            window.location = url;
           }
-        } else {
-          this._super(e);
-        }
+
+          return false;
+        });
+      },
+
+      @on('willDestroyElement')
+      _unwatchFeaturedLinkClicked() {
+        this.$().off('click.link-category', 'a.featured-link');
       }
     });
 
