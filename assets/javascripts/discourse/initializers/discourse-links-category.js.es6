@@ -54,6 +54,39 @@ export default {
         if (reason) {
           return Discourse.InputValidation.create({ failed: true, reason, lastShownAt: lastValidatedAt });
         }
+      },
+
+      toggle() {
+        this.closeAutocomplete();
+        switch (this.get('model.composeState')) {
+          case Composer.OPEN:
+            if (Ember.isEmpty(this.get('model.reply')) && Ember.isEmpty(this.get('model.title')) ||
+              Ember.isEmpty(this.get('model.featured_link')) && Ember.isEmpty(this.get('model.title'))) {
+              this.close();
+            } else {
+              this.shrink();
+            }
+            break;
+          case Composer.DRAFT:
+            this.set('model.composeState', Composer.OPEN);
+            break;
+          case Composer.SAVING:
+            this.close();
+        }
+        return false;
+      },
+
+      _setModel(composerModel, opts) {
+        this._super(composerModel, opts);
+
+        if (opts.draft && this.get('model') && this.get('model.metaData.featured_link')) {
+          this.set('model.featured_link', this.get('model.metaData.featured_link'));
+        }
+      },
+
+      @observes('model.reply', 'model.title', 'model.featured_link')
+      _shouldSaveDraft() {
+        Ember.run.debounce(this, this._saveDraft, 2000);
       }
     });
 
@@ -69,7 +102,22 @@ export default {
 
       @computed('featured_link')
       featuredLinkValid(link) {
+        const metaData = Ember.Object.create({ featured_link: link });
+
+        this.set('metaData', metaData);
         return !Ember.isEmpty(link) && isURL(link, URL_VALIDATOR_CONFIG);
+      },
+
+      @computed('reply', 'originalText', 'metaData')
+      replyDirty: function(reply, originalText, metaData) {
+        return reply !== originalText || metaData;
+      },
+
+      saveDraft() {
+        if (this.get('featured_link'))
+          this.set('reply', this.get('featured_link'));
+
+        this._super();
       },
 
       // whether to disable the post button
