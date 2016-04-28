@@ -33,6 +33,10 @@ function initializeWithApi(api) {
       $elem.hide();
     }
   });
+
+  api.decorateWidget('header-topic-info:after', h => {
+    return h.attach('featured-link', h.attrs);
+  });
 }
 
 export default {
