@@ -8,7 +8,7 @@ import ComposerView from 'discourse/views/composer';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
-import TopicDiscoveryView from 'discourse/views/discovery-topics';
+import ApplicationView from 'discourse/views/application';
 
 const URL_VALIDATOR_CONFIG = {
   protocols: ['http','https'],
@@ -183,7 +183,7 @@ export default {
       }
     });
 
-    TopicDiscoveryView.reopen({
+    ApplicationView.reopen({
       // patch because of raw template
       @on('didInsertElement')
       _watchFeaturedLinkClicked() {
