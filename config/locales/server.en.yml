@@ -12,3 +12,4 @@ en:
     links_category_enabled: "Enable featured link topics"
     links_category_digest_email_anchor_style: "CSS for a.featured-link in digest email"
     links_category_open_in_external_tab: "Open featured link in a external tab"
+    links_category_show_onebox_in_post: "Show onebox in the first post"

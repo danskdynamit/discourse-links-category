@@ -36,5 +36,6 @@ export default createWidget('featured-link', {
       window.location = this.get('url');
     }
 
-    return false;  }
+    return false;
+  }
 });

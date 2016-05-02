@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 1.1
+# version: 1.2
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -56,6 +56,7 @@ after_initialize do
         @params[:skip_validations] = true
         @params[:post_type] ||= Post.types[:regular]
         @params[:first_post_checks] = true
+        @params[:invalidate_oneboxes] = true
 
         manager = NewPostManager.new(current_user, @params)
         result = manager.perform

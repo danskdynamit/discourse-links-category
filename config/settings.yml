@@ -8,3 +8,6 @@ plugins:
   links_category_open_in_external_tab:
     default: true
     client: true
+  links_category_show_onebox_in_post:
+    default: false
+    client: true

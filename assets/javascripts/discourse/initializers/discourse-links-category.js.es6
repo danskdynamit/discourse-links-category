@@ -22,15 +22,26 @@ const URL_VALIDATOR_CONFIG = {
   allow_protocol_relative_urls: false
 };
 
+function oneboxed($elem) {
+  return $elem.children('p').children('a').length === 0;
+}
+
 function initializeWithApi(api) {
   api.decorateCooked(($elem, m) => {
     if (!m || !$elem) { return }
 
     const model = m.getModel(),
       categoryIds = Discourse.Site.current().get('links_category_ids');
-    if (model.get('firstPost') && categoryIds &&
-      categoryIds.contains(model.get('topic.category.id'))) {
-      $elem.hide();
+
+    // decorate the links topic
+    if (model.get('firstPost') && categoryIds && categoryIds.contains(model.get('topic.category.id'))) {
+      const siteSettings = api.container.lookup('site-settings:main');
+
+      if (siteSettings.links_category_show_onebox_in_post && oneboxed($elem)) {
+        $elem.show();
+      } else {
+        $elem.hide();
+      }
     }
   });
 
