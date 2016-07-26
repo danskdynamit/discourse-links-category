@@ -1,7 +1,7 @@
 import computed from 'ember-addons/ember-computed-decorators';
 import { observes, on } from 'ember-addons/ember-computed-decorators';
 import StringBuffer from 'discourse/mixins/string-buffer';
-import DiscourseURL from 'discourse/lib/url';
+import { selectedText } from 'discourse/lib/utilities';
 
 export default Ember.Component.extend(StringBuffer, {
   tagName: 'a',
@@ -44,7 +44,7 @@ export default Ember.Component.extend(StringBuffer, {
 
   click(e) {
     // cancel click if triggered as part of selection.
-    if (Discourse.Utilities.selectedText() !== "") { return false; }
+    if (selectedText() !== "") { return false; }
 
     e.preventDefault();
 

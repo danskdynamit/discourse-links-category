@@ -11,3 +11,4 @@ GPlv3. Copyright (C) 2016 [Dansk Dynamit](https://github.com/danskdynamit)
 ## TODO
 
 1. Don't override email digest template
+2. Add nofollow for links

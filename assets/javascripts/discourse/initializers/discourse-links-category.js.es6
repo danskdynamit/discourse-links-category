@@ -1,4 +1,3 @@
-import { Button } from 'discourse/components/post-menu';
 import Topic from 'discourse/models/topic';
 import ComposerController from 'discourse/controllers/composer';
 import Composer from 'discourse/models/composer';
@@ -8,7 +7,8 @@ import ComposerView from 'discourse/views/composer';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
-import ApplicationView from 'discourse/views/application';
+import InputValidation from 'discourse/models/input-validation';
+import { ajax } from 'discourse/lib/ajax';
 
 const URL_VALIDATOR_CONFIG = {
   protocols: ['http','https'],
@@ -27,6 +27,8 @@ function oneboxed($elem) {
 }
 
 function initializeWithApi(api) {
+  const siteSettings = api.container.lookup('site-settings:main');
+
   api.decorateCooked(($elem, m) => {
     if (!m || !$elem) { return }
 
@@ -48,6 +50,22 @@ function initializeWithApi(api) {
   api.decorateWidget('header-topic-info:after', h => {
     return h.attach('featured-link', h.attrs);
   });
+
+  $('#main').on('click.link-category', 'a.featured-link', e => {
+    e.preventDefault();
+
+    const target = $(e.target),
+      url = target.attr('href');
+
+    if (siteSettings.links_category_open_in_external_tab) {
+      var win = window.open(url, '_blank');
+      win.focus();
+    } else {
+      window.location = url;
+    }
+
+    return false;
+  });
 }
 
 export default {
@@ -66,7 +84,7 @@ export default {
         }
 
         if (reason) {
-          return Discourse.InputValidation.create({ failed: true, reason, lastShownAt: lastValidatedAt });
+          return InputValidation.create({ failed: true, reason, lastShownAt: lastValidatedAt });
         }
       },
 
@@ -162,7 +180,7 @@ export default {
 
           const typeField = Ember.String.underscore(type);
           args.nested_post = true;
-          return Discourse.ajax(path, { method: 'POST', data: args }).then(function (json) {
+          return ajax(path, { method: 'POST', data: args }).then(function (json) {
             return new Result(json[typeField], json);
           });
         } else {
@@ -191,33 +209,6 @@ export default {
         }
 
         return url;
-      }
-    });
-
-    ApplicationView.reopen({
-      // patch because of raw template
-      @on('didInsertElement')
-      _watchFeaturedLinkClicked() {
-        this.$().on('click.link-category', 'a.featured-link', (e) => {
-          e.preventDefault();
-
-          const target = $(e.target),
-            url = target.attr('href');
-
-          if (this.siteSettings.links_category_open_in_external_tab) {
-            var win = window.open(url, '_blank');
-            win.focus();
-          } else {
-            window.location = url;
-          }
-
-          return false;
-        });
-      },
-
-      @on('willDestroyElement')
-      _unwatchFeaturedLinkClicked() {
-        this.$().off('click.link-category', 'a.featured-link');
       }
     });
 
