@@ -12,7 +12,7 @@ import { ajax } from 'discourse/lib/ajax';
 
 // hack startsWith
 function startsWith(string, searchString, position) {
-  let position = position || 0;
+  var position = position || 0;
   return string.substr(position, searchString.length) === searchString;
 }
 

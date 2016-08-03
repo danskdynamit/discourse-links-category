@@ -5,7 +5,7 @@ import { selectedText } from 'discourse/lib/utilities';
 
 // hack startsWith
 function startsWith(string, searchString, position) {
-  let position = position || 0;
+  var position = position || 0;
   return string.substr(position, searchString.length) === searchString;
 }
 
