@@ -3,6 +3,12 @@ import { observes, on } from 'ember-addons/ember-computed-decorators';
 import StringBuffer from 'discourse/mixins/string-buffer';
 import { selectedText } from 'discourse/lib/utilities';
 
+// hack startsWith
+function startsWith(string, searchString, position) {
+  let position = position || 0;
+  return string.substr(position, searchString.length) === searchString;
+}
+
 export default Ember.Component.extend(StringBuffer, {
   tagName: 'a',
   classNameBindings: ['url:featured-link:invisible'],
@@ -35,7 +41,7 @@ export default Ember.Component.extend(StringBuffer, {
     url = url.split(':')[0];
 
     // www is too frequent, truncate it
-    if (url && url.startsWith('www.')) {
+    if (url && startsWith(url, 'www.')) {
       url = url.replace('www\.', '');
     }
 

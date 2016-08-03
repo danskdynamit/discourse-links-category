@@ -10,6 +10,12 @@ import { Result } from 'discourse/adapters/rest';
 import InputValidation from 'discourse/models/input-validation';
 import { ajax } from 'discourse/lib/ajax';
 
+// hack startsWith
+function startsWith(string, searchString, position) {
+  let position = position || 0;
+  return string.substr(position, searchString.length) === searchString;
+}
+
 const URL_VALIDATOR_CONFIG = {
   protocols: ['http','https'],
   require_tld: true,
@@ -204,7 +210,7 @@ export default {
         url = url.split(':')[0];
 
         // www is too frequent, truncate it
-        if (url && url.startsWith('www.')) {
+        if (url && startsWith(url, 'www.')) {
           url = url.replace('www\.', '');
         }
 

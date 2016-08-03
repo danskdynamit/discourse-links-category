@@ -2,6 +2,12 @@ import { createWidget } from 'discourse/widgets/widget';
 import { h } from 'virtual-dom';
 import { selectedText } from 'discourse/lib/utilities';
 
+// hack startsWith
+function startsWith(string, searchString, position) {
+  let position = position || 0;
+  return string.substr(position, searchString.length) === searchString;
+}
+
 export default createWidget('featured-link', {
   html(attrs) {
     const featuredURL = attrs.topic.featured_link;
@@ -17,7 +23,7 @@ export default createWidget('featured-link', {
       domain = domain.split(':')[0];
 
       // www is too frequent, truncate it
-      if (domain && domain.startsWith('www.')) {
+      if (domain && startsWith(domain, 'www.')) {
         domain = domain.replace('www\.', '');
       }
 
