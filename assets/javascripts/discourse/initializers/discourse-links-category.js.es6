@@ -147,12 +147,12 @@ export default {
       },
 
       @computed('reply', 'originalText', 'metaData')
-      replyDirty: function(reply, originalText, metaData) {
+      replyDirty(reply, originalText, metaData) {
         return reply !== originalText || metaData;
       },
 
       saveDraft() {
-        if (this.get('featured_link'))
+        if (this.get('featured_link') && !this.get('topic'))
           this.set('reply', this.get('featured_link'));
 
         this._super();
