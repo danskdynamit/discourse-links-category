@@ -1,0 +1,15 @@
+fr:
+  links_category:
+    invalid_link: 'Le lien est incorrect.'
+    topic_moved_out_disallowed: "Vous ne pouvez pas déplacer un lien publié dans une autre catégorie"
+    topic_moved_in_disallowed: "Vous ne pouvez pas déplacer un sujet normal dans une catégorie publiant des liens."
+  reports:
+    featured_link:
+      title: "Sujets sous forme de lien"
+      xaxis: "Jour"
+      yaxis: "Total"
+  site_settings:
+    links_category_enabled: "Activer les sujets sous forme de liens"
+    links_category_digest_email_anchor_style: "CSS pour la classe a.featured-link dans les résumés par email"
+    links_category_open_in_external_tab: "Ouvrir les liens (de sujets) dans un nouvel onglet"
+    links_category_show_onebox_in_post: "Montrer une onebox dans le premier message"
