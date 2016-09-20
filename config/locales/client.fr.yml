@@ -1,0 +1,10 @@
+fr:
+  js:
+    links_category:
+      enable: "Autorisation la publications de liens dans cette catégorie"
+      link:
+        placeholder: "Entrer le lien"
+        error:
+          link_missing: 'Vous devez ajouter un lien'
+          invalid: "Ce n'est pas un lien"
+          
