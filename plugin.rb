@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 1.5
+# version: 1.6
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
@@ -197,6 +197,8 @@ after_initialize do
   add_to_serializer(:topic_view, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic.id).pluck(:value).first }
   add_to_serializer(:topic_list_item, :include_featured_link?, false) { object.category && scope.featured_link_category?(object.category.id) }
   add_to_serializer(:topic_list_item, :featured_link, false) { object.featured_link }
+  add_to_serializer(:suggested_topic, :include_featured_link?, false) { object.category && scope.featured_link_category?(object.category.id) }
+  add_to_serializer(:suggested_topic, :featured_link, false) { object.featured_link }
   add_to_serializer(:user_action, :include_featured_link?, false) { object.category_id && scope.featured_link_category?(object.category_id) }
   add_to_serializer(:user_action, :featured_link, false) { TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME, topic_id: object.topic_id).pluck(:value).first }
 
