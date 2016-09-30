@@ -12,7 +12,7 @@ function startsWith(string, searchString, position) {
 export default Ember.Component.extend(StringBuffer, {
   tagName: 'a',
   classNameBindings: ['url:featured-link:invisible'],
-  attributeBindings: ['url:href'],
+  attributeBindings: ['url:href', 'target:target'],
 
   renderString(buffer) {
     buffer.push(this.get('domain'));
@@ -48,19 +48,8 @@ export default Ember.Component.extend(StringBuffer, {
     return url;
   },
 
-  click(e) {
-    // cancel click if triggered as part of selection.
-    if (selectedText() !== "") { return false; }
-
-    e.preventDefault();
-
-    if (this.siteSettings.links_category_open_in_external_tab) {
-      var win = window.open(this.get('url'), '_blank');
-      win.focus();
-    } else {
-      window.location = this.get('url');
-    }
-
-    return false;
+  @computed('url')
+  target(url) {
+    return this.siteSettings.links_category_open_in_external_tab ? '_blank' : null;
   }
 });

@@ -28,23 +28,8 @@ export default createWidget('featured-link', {
       }
 
       return h('a.featured-link', {
-        attributes: { href: featuredURL, rel: 'nofollow' }
+        attributes: { href: featuredURL, rel: 'nofollow', target: this.siteSettings.links_category_open_in_external_tab ? '_blank' : null }
       }, domain);
     }
-  },
-
-  click(e) {
-    if (selectedText() !== "") { return false; }
-
-    e.preventDefault();
-
-    if (this.siteSettings.links_category_open_in_external_tab) {
-      let win = window.open(this.get('url'), '_blank');
-      win.focus();
-    } else {
-      window.location = this.get('url');
-    }
-
-    return false;
   }
 });
