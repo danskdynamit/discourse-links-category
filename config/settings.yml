@@ -14,3 +14,6 @@ plugins:
   links_category_show_onebox_in_post:
     default: false
     client: true
+  links_category_url_ref:
+    default: ''
+    client: true

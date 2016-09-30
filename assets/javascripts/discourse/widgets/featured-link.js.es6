@@ -10,7 +10,12 @@ function startsWith(string, searchString, position) {
 
 export default createWidget('featured-link', {
   html(attrs) {
-    const featuredURL = attrs.topic.featured_link;
+    let featuredURL = attrs.topic.featured_link;
+
+    if (this.siteSettings.links_category_url_ref && featuredURL) {
+      const connector = featuredURL.indexOf('?') === -1 ? '?' : '&';
+      featuredURL = `${featuredURL}${connector}ref=${this.siteSettings.links_category_url_ref}`;
+    }
 
     if (attrs.topic && featuredURL) {
       let domain = featuredURL;

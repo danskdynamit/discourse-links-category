@@ -215,6 +215,16 @@ export default {
         }
 
         return url;
+      },
+
+      @computed('featured_link')
+      featuredLink(url) {
+        if (this.siteSettings.links_category_url_ref && url) {
+          const connector = url.indexOf('?') === -1 ? '?' : '&';
+          return `${url}${connector}ref=${this.siteSettings.links_category_url_ref}`;
+        } else {
+          return url;
+        }
       }
     });
 

@@ -12,20 +12,16 @@ function startsWith(string, searchString, position) {
 export default Ember.Component.extend(StringBuffer, {
   tagName: 'a',
   classNameBindings: ['url:featured-link:invisible'],
-  attributeBindings: ['url:href', 'target:target'],
+  attributeBindings: ['url:href', 'target', 'rel'],
+  rel: 'nofollow',
 
   renderString(buffer) {
     buffer.push(this.get('domain'));
   },
 
-  @computed('topic.featured_link', 'link')
+  @computed('topic.featuredLink', 'link')
   url(featuredLink, link) {
     return featuredLink || link;
-  },
-
-  @computed('url')
-  urlExist(url) {
-    return url && url.length !== 0;
   },
 
   @computed('url')

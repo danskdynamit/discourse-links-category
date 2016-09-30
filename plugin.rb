@@ -1,6 +1,6 @@
 # name: discourse-links-category
 # about: Links category feature on Discourse
-# version: 1.6
+# version: 1.7
 # authors: Erick Guan (fantasticfears@gmail.com)
 
 PLUGIN_NAME = 'discourse_links_category'.freeze
