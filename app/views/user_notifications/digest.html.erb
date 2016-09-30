@@ -1,13 +1,20 @@
 <table style="border: 20px solid #eee;" cellspacing="0" cellpadding="0">
 <tr>
+  <%- if I18n.t('user_notifications.digest.custom.html.header').present? %>
+  <td style="padding: 10px 10px;">
+    <%= raw(t 'user_notifications.digest.custom.html.header') %>
+  </td>
+  <%- else %>
   <td style="padding: 10px 10px; background-color: #<%= @header_color %>;">
     <a href="<%= Discourse.base_url %>" style='color: #<%= @anchor_color %>'>
     <%- if logo_url.blank? %>
       <%= SiteSetting.title %>
     <%- else %>
-      <img src="<%= logo_url %>" style="max-height: 35px; min-height: 35px; height: 35px;" class='site-logo'></a>
+      <img src="<%= logo_url %>" style="max-height: 35px; min-height: 35px; height: 35px;" class='site-logo' alt="<%= SiteSetting.title %>">
     <%- end %>
+    </a>
   </td>
+  <%- end %>
 </tr>
 <tr>
   <td style="background-color: #fff; padding: 10px 10px; font-family: Arial, Helvetica, sans-serif; font-size: 14px;">
@@ -20,24 +27,28 @@
 
       <%- @featured_topics.each_with_index do |t, i| %>
         <div class='featured-topic'>
-          <a href='<%= Discourse.base_url + t.relative_url %>' style='color: #<%= @anchor_color %>'><%= raw format_topic_title(t.title) %></a>
-          <%- if t.featured_link %>
+          <a href='<%= Discourse.base_url_no_prefix + t.relative_url %>' style='color: #<%= @anchor_color %>'><%= raw format_topic_title(t.title) %></a>
+          <%- if SiteSetting.links_category_customize_digest_email && t.featured_link %>
             <a class='featured-link' href='<%= t.featured_link %>'><%= raw featured_link_domain(t.featured_link) %></a>
           <%- end %>
           <br/>
           <%= category_badge(t.category, inline_style: true, absolute_url: true) %>
         </div>
 
-        <%- if t.best_post.present? %>
+        <%- if t.best_post.present? && !t.best_post.user_deleted %>
           <div class='digest-post'>
             <%= email_excerpt(t.best_post.cooked, @featured_topics.size) %>
           </div>
         <%- end %>
 
+        <%= digest_custom_html("below_post_#{i+1}") %>
+
         <%- if i < @featured_topics.size - 1 %><% end %>
 
       <%- end %>
     <%- end %>
+
+    <%= digest_custom_html("above_popular_topics") %>
 
     <%- if @new_topics.present? %>
       <hr/>
@@ -46,11 +57,11 @@
       <%- @new_topics.each do |t| %>
         <ul>
           <li>
-            <a href='<%= Discourse.base_url + t.relative_url %>' style='color: #<%= @anchor_color %>'><%= raw format_topic_title(t.title) %></a>
+            <a href='<%= Discourse.base_url_no_prefix + t.relative_url %>' style='color: #<%= @anchor_color %>'><%= raw format_topic_title(t.title) %></a>
             <span class='post-count'><%= t.posts_count %></span>
             <%= category_badge(t.category, inline_style: true, absolute_url: true) %>
-            <%- if t.featured_link %>
-                <a class='featured-link' href='<%= t.featured_link %>'><%= raw featured_link_domain(t.featured_link) %></a>
+            <%- if SiteSetting.links_category_customize_digest_email && t.featured_link %>
+              <a class='featured-link' href='<%= t.featured_link %>'><%= raw featured_link_domain(t.featured_link) %></a>
             <%- end %>
           </li>
         </ul>
@@ -58,13 +69,15 @@
 
     <%- end -%>
 
+    <%= digest_custom_html("below_popular_topics") %>
+
     <%- if @new_topics_since_seen > 0 %>
       <%- if @new_by_category.present? %>
         <p><%= t('user_notifications.digest.more_topics_category', last_seen_at: @last_seen_at, new_topics_since_seen: @new_topics_since_seen) %></p>
         <div>
         <%- @new_by_category.first(10).each do |c| %>
           <span style='white-space: nowrap'>
-            <a href='<%= Discourse.base_url %><%= c[0].url %>' style='color: #<%= @anchor_color %>'><%= c[0].name %></b> <span style='color: #777; margin: 0 10px 0 5px; font-size: 0.9em;'> <%= c[1] %></span></a>
+            <a href='<%= Discourse.base_url_no_prefix %><%= c[0].url %>' style='color: #<%= @anchor_color %>'><%= c[0].name %></b> <span style='color: #777; margin: 0 10px 0 5px; font-size: 0.9em;'> <%= c[1] %></span></a>
           </span>
         <%- end %>
       </div>
@@ -76,8 +89,12 @@
 </tr>
 </table>
 
+<%= digest_custom_html("above_footer") %>
+
 <div class='footer'>
   <%=raw(t 'user_notifications.digest.unsubscribe',
            site_link: html_site_link(@anchor_color),
-           unsubscribe_link: link_to(t('user_notifications.digest.click_here'), email_unsubscribe_url(host: Discourse.base_url, key: @unsubscribe_key), {:style=>'color: #' + @anchor_color }))  %>
+           unsubscribe_link: link_to(t('user_notifications.digest.click_here'), email_unsubscribe_url(host: Discourse.base_url_no_prefix, key: @unsubscribe_key), {:style=>"color: ##{@anchor_color}"}))  %>
 </div>
+
+<%= digest_custom_html("below_footer") %>
