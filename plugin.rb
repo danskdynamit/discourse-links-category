@@ -52,7 +52,7 @@ after_initialize do
         # rewrite as featured link unless client can play well with user stream etc.
         # we need a link appeared in the post since TopicLink extracts the link from the
         # first post. otherwise, we lose the tracking ability
-        @params[:raw] = @params[:featured_link] #  if @params[:raw].blank?
+        @params[:raw] = SiteSetting.links_category_show_onebox_in_post ? @params[:featured_link] : ''
         @params[:skip_validations] = true
         @params[:post_type] ||= Post.types[:regular]
         @params[:first_post_checks] = true
