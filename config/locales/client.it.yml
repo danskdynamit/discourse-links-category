@@ -1,0 +1,9 @@
+it:
+  js:
+    links_category:
+      enable: "Consentire la pubblicazione di un link in questa categoria"
+      link:
+        placeholder: "Inserisci un link"
+        error:
+          link_missing: 'Devi inserire un link'
+          invalid: "Non è un link"

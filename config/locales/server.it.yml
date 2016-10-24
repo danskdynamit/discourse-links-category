@@ -1,0 +1,17 @@
+it:
+  links_category:
+    invalid_link: 'Il link non è valido.'
+    topic_moved_out_disallowed: "Non è possibile spostare un argomento con link in primo piano in un'altra categoria."
+    topic_moved_in_disallowed: "Non è possibile spostare un argomento normale nella categoria link. Prova a crearne uno invece."
+  reports:
+    featured_link:
+      title: "Argomenti Link in Primo Piano"
+      xaxis: "Giorno"
+      yaxis: "Totale"
+  site_settings:
+    links_category_enabled: "Abilitare argomenti con link in primo piano"
+    links_category_digest_email_anchor_style: "CSS per a.featured-link nel riepilogo delle email"
+    links_category_open_in_external_tab: "Apri i link in primo piano in un una nuova scheda"
+    links_category_show_onebox_in_post: "Mostra onebox nel primo messaggio"
+    links_category_customize_digest_email: "Mostra i link nel riepilogo delle email"
+    links_category_url_ref: "Aggiungi `ref=x` alla fine della url"

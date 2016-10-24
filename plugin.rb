@@ -39,7 +39,7 @@ after_initialize do
       guardian.ensure_featured_link_category!(category.to_i)
 
 
-      uri = URI.parse(@params[:featured_link])
+      uri = URI.parse(URI.encode(@params[:featured_link]))
       if uri.scheme.nil?
         uri = URI.parse("http://#{@params[:featured_link]}")
       end
