@@ -1,6 +1,5 @@
 import computed from 'ember-addons/ember-computed-decorators';
 import { observes, on } from 'ember-addons/ember-computed-decorators';
-import StringBuffer from 'discourse/mixins/string-buffer';
 import { selectedText } from 'discourse/lib/utilities';
 
 // hack startsWith
@@ -9,15 +8,11 @@ function startsWith(string, searchString, position) {
   return string.substr(position, searchString.length) === searchString;
 }
 
-export default Ember.Component.extend(StringBuffer, {
+export default Ember.Component.extend({
   tagName: 'a',
   classNameBindings: ['url:featured-link:invisible'],
   attributeBindings: ['url:href', 'target', 'rel'],
   rel: 'nofollow',
-
-  renderString(buffer) {
-    buffer.push(this.get('domain'));
-  },
 
   @computed('topic.featuredLink', 'link')
   url(featuredLink, link) {
