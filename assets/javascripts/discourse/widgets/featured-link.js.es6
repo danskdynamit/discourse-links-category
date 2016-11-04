@@ -11,6 +11,7 @@ function startsWith(string, searchString, position) {
 export default createWidget('featured-link', {
   html(attrs) {
     let featuredURL = attrs.topic.featured_link;
+    let domain = featuredURL;
 
     if (this.siteSettings.links_category_url_ref && featuredURL) {
       const connector = featuredURL.indexOf('?') === -1 ? '?' : '&';
@@ -18,7 +19,6 @@ export default createWidget('featured-link', {
     }
 
     if (attrs.topic && featuredURL) {
-      let domain = featuredURL;
       if (domain.indexOf("://") > -1) {
         domain = domain.split('/')[2];
       } else {
