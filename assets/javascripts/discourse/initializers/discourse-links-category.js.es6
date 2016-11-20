@@ -1,4 +1,5 @@
 import Topic from 'discourse/models/topic';
+import TopicController from 'discourse/controllers/topic';
 import ComposerController from 'discourse/controllers/composer';
 import Composer from 'discourse/models/composer';
 import { withPluginApi } from 'discourse/lib/plugin-api';
@@ -226,6 +227,15 @@ export default {
         } else {
           return url;
         }
+      }
+    });
+
+    TopicController.reopen({
+      @computed('model.isPrivateMessage', 'model.category.id')
+      canEditTopicFeaturedLink(isPrivateMessage, categoryId) {
+        if (!this.siteSettings.links_category_enabled || isPrivateMessage) { return false; }
+        const categoryIds = this.site.get('links_category_ids');
+        return categoryIds && categoryIds.contains(categoryId);
       }
     });
 

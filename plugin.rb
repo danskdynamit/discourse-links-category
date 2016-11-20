@@ -180,6 +180,30 @@ after_initialize do
     tc.check_result(tc.topic.change_category_to_id(category_id))
   end
 
+  PostRevisor.track_topic_field(:featured_link) do |tc, featured_link|
+    if SiteSetting.links_category_enabled && featured_link.present? && tc.guardian.featured_link_category?(tc.topic.category_id)
+      begin
+        uri = URI.parse(URI.encode(featured_link))
+        if uri.scheme.nil?
+          uri = URI.parse("http://#{featured_link}")
+        end
+
+        # fail early to skip post manager if url is invalid
+        if !uri.kind_of?(URI::HTTP) && !uri.kind_of?(URI::HTTPS)
+          tc.topic.errors[:base] << I18n.t('links_category.invalid_link')
+          tc.check_result(false)
+          next
+        else
+          tc.topic.custom_fields['featured_link'] = featured_link
+          tc.topic.save!
+        end
+      rescue
+        tc.topic.errors[:base] << I18n.t('links_category.invalid_link')
+        tc.check_result(false)
+      end
+    end
+  end
+
   ApplicationHelper.class_eval do
     def featured_link_domain(url)
       uri = URI.parse(url)
