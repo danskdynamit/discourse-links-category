@@ -2,6 +2,7 @@ import Topic from 'discourse/models/topic';
 import TopicController from 'discourse/controllers/topic';
 import ComposerController from 'discourse/controllers/composer';
 import Composer from 'discourse/models/composer';
+import ComposerBodyComponent from 'discourse/components/composer-body';
 import { withPluginApi } from 'discourse/lib/plugin-api';
 import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
 import isURL from '../../lib/validator-js/isURL';
@@ -236,6 +237,17 @@ export default {
         const categoryIds = this.site.get('links_category_ids');
         return categoryIds && categoryIds.contains(categoryId);
       }
+    });
+
+    ComposerBodyComponent.reopen({
+      classNameBindings: ['composer.creatingPrivateMessage:private-message',
+        'composeState',
+        'composer.loading',
+        'composer.canEditTitle:edit-title',
+        'composer.createdPost:created-post',
+        'composer.creatingTopic:topic',
+        'composer.whisper:composing-whisper',
+        'composer.canEditFeaturedLink:edit-link-category']
     });
 
     withPluginApi('0.3', initializeWithApi);
