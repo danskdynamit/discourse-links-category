@@ -53,6 +53,9 @@ after_initialize do
         # we need a link appeared in the post since TopicLink extracts the link from the
         # first post. otherwise, we lose the tracking ability
         @params[:raw] = SiteSetting.links_category_show_onebox_in_post ? @params[:featured_link] : ''
+        if SiteSetting.links_category_show_onebox_in_post
+          Oneboxer.preview(@params[:featured_link], invalidate_oneboxes: false)
+        end
         @params[:skip_validations] = true
         @params[:post_type] ||= Post.types[:regular]
         @params[:first_post_checks] = true
