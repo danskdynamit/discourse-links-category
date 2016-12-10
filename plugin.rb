@@ -39,7 +39,11 @@ after_initialize do
       guardian.ensure_featured_link_category!(category.to_i)
 
 
-      uri = URI.parse(URI.encode(@params[:featured_link]))
+      uri = URI.parse(@params[:featured_link]) rescue nil
+      if uri.nil?
+        uri = URI.parse(URI.encode(@params[:featured_link])) rescue nil
+      end
+      uri = URI('') if uri.nil?
       if uri.scheme.nil?
         uri = URI.parse("http://#{@params[:featured_link]}")
       end
@@ -186,7 +190,11 @@ after_initialize do
   PostRevisor.track_topic_field(:featured_link) do |tc, featured_link|
     if SiteSetting.links_category_enabled && featured_link.present? && tc.guardian.featured_link_category?(tc.topic.category_id)
       begin
-        uri = URI.parse(URI.encode(featured_link))
+        uri = URI.parse(featured_link) rescue nil
+        if uri.nil?
+          uri = URI.parse(URI.encode(featured_link)) rescue nil
+        end
+        uri = URI('') if uri.nil?
         if uri.scheme.nil?
           uri = URI.parse("http://#{featured_link}")
         end
