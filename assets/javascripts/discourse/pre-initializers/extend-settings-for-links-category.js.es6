@@ -1,4 +1,4 @@
-import property from 'ember-addons/ember-computed-decorators';
+import discourseComputed from "discourse-common/utils/decorators";
 import Category from 'discourse/models/category';
 
 export default {
@@ -7,7 +7,7 @@ export default {
   initialize() {
 
     Category.reopen({
-      @property('custom_fields.links_category')
+      @discourseComputed('custom_fields.links_category')
       links_category: {
         get(enableField) {
           return enableField === "true";
