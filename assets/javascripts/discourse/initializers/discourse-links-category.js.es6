@@ -4,7 +4,7 @@ import ComposerController from 'discourse/controllers/composer';
 import Composer from 'discourse/models/composer';
 import ComposerBodyComponent from 'discourse/components/composer-body';
 import { withPluginApi } from 'discourse/lib/plugin-api';
-import { default as computed, on, observes } from 'ember-addons/ember-computed-decorators';
+import { default as discourseComputed, observes } from 'discourse-common/utils/decorators';
 import isURL from '../../lib/validator-js/isURL';
 import PostAdapter from 'discourse/adapters/post';
 import { Result } from 'discourse/adapters/rest';
@@ -81,7 +81,7 @@ export default {
     ComposerController.reopen({
       featuredLinkPlaceholder: I18n.t("links_category.link.placeholder"),
 
-      @computed('model.featured_link', 'lastValidatedAt', 'model.featuredLinkValid')
+      @discourseComputed('model.featured_link', 'lastValidatedAt', 'model.featuredLinkValid')
       featuredLinkValidation(link, lastValidatedAt, featuredLinkValid) {
         let reason;
         if (Ember.isEmpty(link)) {
@@ -132,14 +132,14 @@ export default {
     Composer.serializeOnCreate('featured_link');
     Composer.serializeToTopic('featured_link', 'topic.featured_link');
     Composer.reopen({
-      @computed('canEditTitle', 'categoryId')
+      @discourseComputed('canEditTitle', 'categoryId')
       canEditFeaturedLink(canEditTitle, categoryId) {
         const categoryIds = this.site.get('links_category_ids');
         return canEditTitle && categoryIds &&
           categoryIds.contains(categoryId);
       },
 
-      @computed('featured_link')
+      @discourseComputed('featured_link')
       featuredLinkValid(link) {
         const metaData = Ember.Object.create({ featured_link: link });
 
@@ -147,7 +147,7 @@ export default {
         return !Ember.isEmpty(link) && isURL(link, URL_VALIDATOR_CONFIG);
       },
 
-      @computed('reply', 'originalText', 'metaData')
+      @discourseComputed('reply', 'originalText', 'metaData')
       replyDirty(reply, originalText, metaData) {
         return reply !== originalText || metaData;
       },
@@ -198,7 +198,7 @@ export default {
 
     Topic.reopen({
       // for raw rendering
-      @computed('featured_link')
+      @discourseComputed('featured_link')
       featuredLinkDomain(url) {
         if (!url) return '';
 
@@ -218,7 +218,7 @@ export default {
         return url;
       },
 
-      @computed('featured_link')
+      @discourseComputed('featured_link')
       featuredLink(url) {
         if (this.siteSettings.links_category_url_ref && url) {
           const connector = url.indexOf('?') === -1 ? '?' : '&';
@@ -231,7 +231,7 @@ export default {
     });
 
     TopicController.reopen({
-      @computed('model.isPrivateMessage', 'model.category.id')
+      @discourseComputed('model.isPrivateMessage', 'model.category.id')
       canEditTopicFeaturedLink(isPrivateMessage, categoryId) {
         if (!this.siteSettings.links_category_enabled || isPrivateMessage) { return false; }
         const categoryIds = this.site.get('links_category_ids');

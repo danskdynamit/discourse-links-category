@@ -1,5 +1,4 @@
-import computed from 'ember-addons/ember-computed-decorators';
-import { observes, on } from 'ember-addons/ember-computed-decorators';
+import discourseComputed from "discourse-common/utils/decorators";
 import { selectedText } from 'discourse/lib/utilities';
 
 // hack startsWith
@@ -14,12 +13,12 @@ export default Ember.Component.extend({
   attributeBindings: ['url:href', 'target', 'rel'],
   rel: 'nofollow',
 
-  @computed('topic.featuredLink', 'link')
+  @discourseComputed('topic.featuredLink', 'link')
   url(featuredLink, link) {
     return featuredLink || link;
   },
 
-  @computed('url')
+  @discourseComputed('url')
   domain(url) {
     if (!url) return '';
 
@@ -39,7 +38,7 @@ export default Ember.Component.extend({
     return url;
   },
 
-  @computed('url')
+  @discourseComputed('url')
   target(url) {
     return this.siteSettings.links_category_open_in_external_tab ? '_blank' : null;
   }
