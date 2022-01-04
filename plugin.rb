@@ -142,8 +142,6 @@ after_initialize do
   end
 
   if Report.respond_to?(:add_report)
-    AdminDashboardData::GLOBAL_REPORTS << FEATURED_LINK_FIELD_NAME
-
     Report.add_report(FEATURED_LINK_FIELD_NAME) do |report|
       report.data = []
       link_topics = TopicCustomField.where(name: FEATURED_LINK_FIELD_NAME)
