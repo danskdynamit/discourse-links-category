@@ -35,12 +35,13 @@ function oneboxed($elem) {
 
 function initializeWithApi(api) {
   const siteSettings = api.container.lookup('site-settings:main');
+  const site = api.container.lookup('site:main');
 
   api.decorateCooked(($elem, m) => {
     if (!m || !$elem) { return }
 
     const model = m.getModel(),
-      categoryIds = Discourse.Site.current().get('links_category_ids');
+      categoryIds = site.links_category_ids;
 
     // decorate the links topic
     if (model.get('firstPost') && categoryIds && categoryIds.contains(model.get('topic.category.id'))) {
